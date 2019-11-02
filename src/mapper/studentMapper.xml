@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.StudentMapper">
+
+    <select id="queryStudentByStuNo" resultType="Student" parameterType="int">
+        select * from student where StuNo = #{StuNo};
+    </select>
+
+    <!--查询：使用类型转换器
+        1. 如果类中属性和表中的字段类型能够合理识别（如String——VARCHAR），则可以使用resultType；否则使用resultMap
+        2. 如果类中属性名和表中的字段名能够合理匹配（如stuNo——stuNo），则可以使用resultType；否则使用resultMap（如stuNo——id）
+    -->
+    <select id="queryStudentByStuNoWithConverter" resultMap="studentResult" parameterType="int">
+        select * from student where StuNo = #{StuNo};
+    </select>
+    
+    <resultMap id="studentResult" type="Student">
+        <!--分为主键（id）和非主键（result）-->
+        <id property="stuNo" column="stuNo"></id>
+        <result property="stuName" column="stuName"></result>
+        <result property="stuGender" column="stuGender" javaType="boolean" jdbcType="INTEGER"></result>
+        <result property="stuAge" column="stuAge"></result>
+        <result property="gradeName" column="gradeName"></result>
+    </resultMap>
+
+    <insert id="addStudent" parameterType="Student">
+        insert into student(stuNo,stuName,stuAge,gradeName)
+            values(#{stuNo},#{stuName},#{stuAge},#{gradeName});
+    </insert>
+
+    <insert id="addStudentWithConverter" parameterType="Student">
+        insert into student(stuNo,stuName,stuGender,stuAge,gradeName)
+            values(#{stuNo},#{stuName},#{stuGender,javaType=boolean,jdbcType=INTEGER},#{stuAge},#{gradeName});
+    </insert>
+
+    <delete id="deleteStudentByStuNo" parameterType="int">
+        delete from student where stuNo = #{stuNo};
+    </delete>
+
+    <update id="updateStudentByStuNo" parameterType="Student">
+        update student set stuName = #{stuName},stuAge = #{stuAge},
+            gradeName = #{gradeName} where stuNo = #{stuNo};
+    </update>
+
+    <select id="queryAllStudents" resultType="Student">
+        select * from student;
+    </select>
+
+    <select id="queryAllStudentsOrderByColumn" parameterType="String" resultType="Student">
+        select * from student order by ${value};
+    </select>
+
+    <!--通过调用存储过程实现查询
+        存储过程的输入参数，在MyBatis中一般用HashMap来传递
+    -->
+    <select id="queryCountByGradeNameWithProcedure" statementType="CALLABLE" parameterType="HashMap">
+        call queryCountByGradeNameWithProcedure(#{gName,jdbcType=VARCHAR,mode=IN},
+                                            #{scount,jdbcType=INTEGER,mode=OUT});
+    </select>
+
+</mapper>
