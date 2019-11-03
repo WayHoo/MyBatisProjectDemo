@@ -19,16 +19,18 @@ public class BooleanAndIntConverter extends BaseTypeHandler<Boolean> {
      */
     @Override
     public void setNonNullParameter(PreparedStatement preparedStatement, int i, Boolean aBoolean, JdbcType jdbcType) throws SQLException {
-        if (aBoolean)
-            preparedStatement.setInt(i,1);
-        else
-            preparedStatement.setInt(i,0);
+        preparedStatement.setInt(i,aBoolean ? 1 : 0);
     }
 
-    //get: DB(int) --> java(boolean)
+    /**
+     * get: DB(int) --> java(boolean)
+     * @param resultSet JDBC查询结果集
+     * @param columnLabel 待提取结果的数据表列名
+     * @throws SQLException
+     */
     @Override
-    public Boolean getNullableResult(ResultSet resultSet, String s) throws SQLException {
-        int sexNum = resultSet.getInt(s);
+    public Boolean getNullableResult(ResultSet resultSet, String columnLabel) throws SQLException {
+        int sexNum = resultSet.getInt(columnLabel);
         return sexNum == 1;
     }
 

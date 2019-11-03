@@ -16,4 +16,5 @@ public interface StudentMapper {
     void addStudentWithConverter(Student stu);
     List<Student> queryAllStudentsOrderByColumn(String stuName);
     void queryCountByGradeNameWithProcedure(HashMap<String,Object> params);
+    Student queryStuByNameOrAgeWithSQLTag(Student stu);
 }

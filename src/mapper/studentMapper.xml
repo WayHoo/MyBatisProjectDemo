@@ -60,4 +60,15 @@
                                             #{scount,jdbcType=INTEGER,mode=OUT});
     </select>
 
+    <!--动态SQL语句-->
+    <select id="queryStuByNameOrAgeWithSQLTag" parameterType="Student" resultType="Student">
+        select * from student where 1 = 1
+        <if test = "stuName != null and stuName != ''">
+            and stuName = #{stuName}
+        </if>
+        <if test = "stuAge != 0">
+            and stuAge = #{stuAge};
+        </if>
+    </select>
+
 </mapper>
