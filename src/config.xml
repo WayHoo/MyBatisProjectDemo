@@ -13,6 +13,8 @@
         <setting name="lazyLoadingEnabled" value="true"/>
         <!--关闭立即加载-->
         <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启二级缓存-->
+        <setting name="cacheEnabled" value="true"/>
     </settings>
 
     <!--将entity包下的所有类的类名定义为简写类名（不加包路径），使用时不区分大小写。-->

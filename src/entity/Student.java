@@ -1,7 +1,9 @@
 package entity;
 
+import java.io.Serializable;
+
 //学生实体类
-public class Student {
+public class Student implements Serializable {
     //学生基本信息
     private int stuNo;
     private String stuName;

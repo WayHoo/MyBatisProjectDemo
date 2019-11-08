@@ -182,6 +182,18 @@ public class TestMyBatis {
         sqlSession.close();
     }
 
+    //测试二级缓存
+    public static void test2LevleCache() throws IOException {
+        Student stu1 = studentMapper.queryStudentByStuNo(2);
+        System.out.println(stu1);
+        sqlSession.close();
+        SqlSession sqlSession2 = sqlSessionFactory.openSession();
+        StudentMapper studentMapper2 = sqlSession2.getMapper(StudentMapper.class);
+        Student stu2 = studentMapper2.queryStudentByStuNo(2);
+        System.out.println(stu2);
+        sqlSession.close();
+    }
+
     public static void main(String[] args) throws IOException {
         //加载MyBatis配置文件（为了访问数据库）
         reader = Resources.getResourceAsReader("config.xml");
@@ -207,6 +219,7 @@ public class TestMyBatis {
 //        queryStuAndCard();
 //        queryAllStuInClass();
 //        lazyQueryAllStuAndCard();
-        lazyQueryClassByClassId();
+//        lazyQueryClassByClassId();
+        test2LevleCache();
     }
 }

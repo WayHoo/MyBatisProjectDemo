@@ -1,6 +1,8 @@
 package entity;
 
-public class StudentCard {
+import java.io.Serializable;
+
+public class StudentCard implements Serializable {
     private int cardId;
     private String cardInfo;
 

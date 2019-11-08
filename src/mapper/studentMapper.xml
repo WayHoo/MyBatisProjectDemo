@@ -4,6 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.StudentMapper">
 
+    <!--声明此namespace开启Mybatis自带二级缓存
+    <cache></cache>
+    -->
+
+    <!--声明此namespace开启EhCache二级缓存-->
+    <cache type="org.mybatis.caches.ehcache.EhcacheCache">
+        <!--property属性值可不设置，如果设置会覆盖ehcache.xml中的全局配置-->
+        <property name="maxElementsInMemory" value="500"/>
+        <property name="maxElementsOnDisk" value="100000"/>
+    </cache>
+
     <!--SQL片段-->
     <sql id="sqlFragment">
         <where>
@@ -55,11 +66,13 @@
             gradeName = #{gradeName} where stuNo = #{stuNo};
     </update>
 
-    <select id="queryAllStudents" resultType="Student">
+    <!--通过useCache声明该查询操作不使用二级缓存-->
+    <select id="queryAllStudents" resultType="Student" useCache="false">
         select * from student;
     </select>
 
-    <select id="queryAllStudentsOrderByColumn" parameterType="String" resultType="Student">
+    <!--通过flushCache声明自动清理二级缓存-->
+    <select id="queryAllStudentsOrderByColumn" parameterType="String" resultType="Student" flushCache="true">
         select * from student order by ${value};
     </select>
 
