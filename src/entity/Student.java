@@ -2,11 +2,14 @@ package entity;
 
 //学生实体类
 public class Student {
+    //学生基本信息
     private int stuNo;
     private String stuName;
     private boolean stuGender;
     private int stuAge;
     private String gradeName;
+    //学生证信息
+    private StudentCard stuCard;
 
     public Student() {
 
@@ -59,6 +62,10 @@ public class Student {
     public void setStuGender(boolean stuGender) {
         this.stuGender = stuGender;
     }
+
+    public StudentCard getStuCard() { return stuCard; }
+
+    public void setStuCard(StudentCard stuCard) { this.stuCard = stuCard; }
 
     @Override
     public String toString() {

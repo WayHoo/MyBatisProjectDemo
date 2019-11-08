@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.StudentClassMapper">
+
+    <!--根据classId查询班级，然后延迟加载班级对应的所有学生信息-->
+    <select id="lazyQueryClassByClassId" resultMap="student_class_lazyLoad_map" parameterType="int">
+        select * from studentClass where classId = #{classId};
+    </select>
+
+    <resultMap id="student_class_lazyLoad_map" type="entity.StudentClass">
+        <id property="classId" column="classId"></id>
+        <result property="className" column="className"></result>
+        <!--students为StudentClass类中的一个List属性，存储学生；延迟查询通过外键classId实现-->
+        <collection property="students" ofType="Student" select="mapper.StudentMapper.queryStuByClassId"
+                    column="classId"></collection>
+    </resultMap>
+</mapper>

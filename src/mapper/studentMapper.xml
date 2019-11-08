@@ -4,6 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.StudentMapper">
 
+    <!--SQL片段-->
+    <sql id="sqlFragment">
+        <where>
+            <if test="list != null and list.size() > 0">
+                <foreach collection="list" open=" and stuNo in (" close=")" item="stuNo" separator=",">
+                    #{stuNo}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
     <select id="queryStudentByStuNo" resultType="Student" parameterType="int">
         select * from student where StuNo = #{StuNo};
     </select>
@@ -61,6 +72,7 @@
     </select>
 
     <!--动态SQL语句-->
+    <!--
     <select id="queryStuByNameOrAgeWithSQLTag" parameterType="Student" resultType="Student">
         select * from student where 1 = 1
         <if test = "stuName != null and stuName != ''">
@@ -70,5 +82,119 @@
             and stuAge = #{stuAge};
         </if>
     </select>
+    -->
 
+    <select id="queryStuByNameOrAgeWithSQLTag" parameterType="Student" resultType="Student">
+        select * from student
+        <where>
+            <if test = "stuName != null and stuName != ''">
+                and stuName = #{stuName}    <!--其中的and可以省略，因为<where>标签会智能增删and-->
+            </if>
+            <if test = "stuAge != 0">
+                and stuAge = #{stuAge}; <!--其中的and不能省略，因为<where>标签只会智能处理第一个有效的<if>标签中的and-->
+            </if>
+        </where>
+    </select>
+
+    <!--将多个元素放入对象的属性中(StuNoListWrapper类的ArrayList<Integer>类型属性stuNoList)-->
+    <select id="queryStuByStuNoListWithAttribute" parameterType="entity.StuNoListWrapper" resultType="Student">
+        select * from student
+        <where>
+            <if test="stuNoList != null and stuNoList.size() > 0">
+                <foreach collection="stuNoList" open=" and stuNo in (" close=")" item="stuNo" separator=",">
+                    #{stuNo}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!--将多个元素放入数组中，int[] stuNoArray = {1,2,3}-->
+    <select id="queryStuByStuNoListWithArray" parameterType="int[]" resultType="Student">
+        select * from student
+        <where>
+            <if test="array != null and array.length > 0">
+                <foreach collection="array" open=" and stuNo in (" close=")" item="stuNo" separator=",">
+                    #{stuNo}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!--将多个元素放入数组中，List<Intetger> stuNoList-->
+    <select id="queryStuByStuNoListWithList" parameterType="List" resultType="Student">
+        select * from student
+        <include refid="sqlFragment"></include>
+    </select>
+
+    <!--将多个元素放入对象数组中，Student[] students = {stu1, stu2, stu3}-->
+    <select id="queryStuByStuNoListWithObjectArray" parameterType="Object[]" resultType="Student">
+        select * from student
+        <where>
+            <if test="array != null and array.length > 0">
+                <foreach collection="array" open=" and stuNo in (" close=")" item="student" separator=",">
+                    #{student.stuNo}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="queryStuAndCard" parameterType="int" resultMap="student_card_map">
+        select s.*, c.* from student s inner join studentCard c on s.cardId = c.cardId where s.stuNo = #{stuNo};
+    </select>
+    
+    <resultMap id="student_card_map" type="Student">
+        <!--学生的信息-->
+        <id property="stuNo" column="stuNo"></id>
+        <result property="stuName" column="stuName"></result>
+        <result property="stuGender" column="stuGender" javaType="boolean" jdbcType="INTEGER"></result>
+        <result property="stuAge" column="stuAge"></result>
+        <result property="gradeName" column="gradeName"></result>
+        <!--一对一时，对象成员使用association映射，JavaType指定该属性的类型-->
+        <association property="stuCard" javaType="StudentCard">
+            <id property="cardId" column="cardId"></id>
+            <result property="cardInfo" column="cardInfo"></result>
+        </association>
+    </resultMap>
+
+    <select id="queryAllStuInClass" parameterType="int" resultMap="student_class_map">
+        select s.*,c.* from student s inner join studentClass c on s.classId = c.classId where c.classId = #{classId};
+    </select>
+
+    <!--类和表对应关系-->
+    <resultMap id="student_class_map" type="entity.StudentClass">
+        <!--因为type表示的主类是班级，因此先关联班级信息-->
+        <id property="classId" column="classId"></id>
+        <result property="className" column="className"></result>
+        <!--一对多，配置成员属性：学生，描述属性类型：JavaType，描述属性的元素类型：ofType-->
+        <collection property="students" ofType="Student">
+            <id property="stuNo" column="stuNo"></id>
+            <result property="stuName" column="stuName"></result>
+            <result property="stuGender" column="stuGender" javaType="boolean" jdbcType="INTEGER"></result>
+            <result property="stuAge" column="stuAge"></result>
+            <result property="gradeName" column="gradeName"></result>
+            <!--Student类中还有stuCard属性，可以级联对应，此处省略-->
+        </collection>
+    </resultMap>
+
+    <!--查询所有学生，并延迟加载学生证信息-->
+    <select id="lazyQueryAllStuAndCard" resultMap="student_card_lazyLoad_map">
+        select * from student
+    </select>
+
+    <resultMap id="student_card_lazyLoad_map" type="Student">
+        <!--学生信息-->
+        <id property="stuNo" column="stuNo"></id>
+        <result property="stuName" column="stuName"></result>
+        <result property="stuGender" column="stuGender" javaType="boolean" jdbcType="INTEGER"></result>
+        <result property="stuAge" column="stuAge"></result>
+        <result property="gradeName" column="gradeName"></result>
+        <!--采用延迟加载方式，在需要时加载学生证信息，column表示外键-->
+        <association property="stuCard" javaType="StudentCard" select="entity.StudentCardMapper.queryCardById"
+                     column="cardId"></association>
+    </resultMap>
+    
+    <select id="queryStuByClassId" parameterType="int" resultType="Student">
+        select * from student where classId = #{classId};
+    </select>
+    
 </mapper>

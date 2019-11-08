@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace存放映射文件的路径-->
+<mapper namespace="entity.StudentCardMapper">
+
+    <!--查询学生证信息-->
+    <select id="queryCardById" resultType="StudentCard" parameterType="int">
+        select * from StudentCard where cardId = #{cardId};
+    </select>
+</mapper>

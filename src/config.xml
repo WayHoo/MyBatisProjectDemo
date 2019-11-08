@@ -5,6 +5,15 @@
 <configuration>
     <!--数据库属性值（如driver、URL、username、password等）的存储位置-->
     <properties resource="db.properties"></properties>
+    
+    <settings>
+        <!--开启日志，并制定使用的具体日志类型-->
+        <setting name="logImpl" value="LOG4J"/>
+        <!--开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--关闭立即加载-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
 
     <!--将entity包下的所有类的类名定义为简写类名（不加包路径），使用时不区分大小写。-->
     <typeAliases>
@@ -41,6 +50,8 @@
     </environments>
     <mappers>
         <!--加载映射文件-->
-        <mapper resource="mapper/studentMapper.xml"/>
+        <mapper resource="mapper/studentMapper.xml"></mapper>
+        <mapper resource="mapper/studentCardMapper.xml"></mapper>
+        <mapper resource="mapper/studentClassMapper.xml"></mapper>
     </mappers>
 </configuration>
