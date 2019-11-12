@@ -26,8 +26,8 @@
         </where>
     </sql>
 
-    <select id="queryStudentByStuNo" resultType="Student" parameterType="int">
-        select * from student where StuNo = #{StuNo};
+    <select id="queryStudentByStuNo" resultType="Student" parameterType="int" databaseId="mysql">
+        select * from student where stuNo = #{stuNo};
     </select>
 
     <!--查询：使用类型转换器
@@ -47,9 +47,22 @@
         <result property="gradeName" column="gradeName"></result>
     </resultMap>
 
-    <insert id="addStudent" parameterType="Student">
+    <insert id="addStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="stuNo">
+        insert into student(stuName,stuAge,gradeName)
+            values(#{stuName},#{stuAge},#{gradeName});
+    </insert>
+
+    <!--直接传入多参数（基本类型），不指明parameterType
+        当stuName值为null时，将NULL传递给数据库（Oracle）-->
+    <insert id="addStudentWithMultiParam">
+        insert into student(stuName,stuAge,gradeName)
+            values(#{stuName,jdbcType = NULL},#{stuAge},#{gradeName});
+    </insert>
+
+    <!--传入基本类型和对象类型混合的多参数，不指明parameterType-->
+    <insert id="addStudentWithMultiTypeParam">
         insert into student(stuNo,stuName,stuAge,gradeName)
-            values(#{stuNo},#{stuName},#{stuAge},#{gradeName});
+            values(#{stuNo},#{stu.stuName},#{stu.stuAge},#{stu.gradeName});
     </insert>
 
     <insert id="addStudentWithConverter" parameterType="Student">
@@ -209,5 +222,35 @@
     <select id="queryStuByClassId" parameterType="int" resultType="Student">
         select * from student where classId = #{classId};
     </select>
-    
+
+    <!--使用HashMap存储单个查询结果，指定HashMap的key值-->
+    <select id="querySingleStuOutByHashMap" parameterType="int" resultType="HashMap">
+        select stuNo "number",stuName "name",stuAge "age" from student where stuNo = #{stuNo};
+    </select>
+
+    <!--使用HashMap存储多个查询结果，不指定HashMap的key值-->
+    <select id="queryAllStuOutByHashMap" resultType="HashMap">
+        select stuNo,stuName,stuAge from student;
+    </select>
+
+    <select id="queryStudentByStuNoWithDiscriminator" resultMap="studentResultDiscriminator" parameterType="int">
+        select * from student where StuNo = #{StuNo};
+    </select>
+
+    <resultMap id="studentResultDiscriminator" type="Student">
+        <!--分为主键（id）和非主键（result）-->
+        <id property="stuNo" column="stuNo"></id>
+        <result property="stuGender" column="stuGender" javaType="boolean" jdbcType="INTEGER"></result>
+        <result property="stuAge" column="stuAge"></result>
+        <result property="gradeName" column="gradeName"></result>
+        <discriminator javaType="String" column="gradeName">
+            <case value="研一" resultType="Student">
+                <result property="stuName" column="stuName"></result>
+            </case>
+            <case value="研二" resultType="Student">
+                <result property="stuName" column="stuNickname"></result>
+            </case>
+        </discriminator>
+    </resultMap>
+
 </mapper>

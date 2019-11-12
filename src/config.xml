@@ -7,6 +7,8 @@
     <properties resource="db.properties"></properties>
     
     <settings>
+        <!--全局配置，当SQL输入参数为null时，不转换成OTHER，而是直接转换成NULL传递给数据库-->
+        <setting name="jdbcTypeForNull" value="NULL"/>
         <!--开启日志，并制定使用的具体日志类型-->
         <setting name="logImpl" value="LOG4J"/>
         <!--开启延迟加载-->
@@ -50,10 +52,23 @@
             </dataSource>
         </environment>
     </environments>
+
+    <!--配置数据库支持类-->
+    <databaseIdProvider type="DB_VENDOR">
+        <!--property需根据元数据查询数据库名（不能随意写），value值为别名-->
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+    </databaseIdProvider>
+    
     <mappers>
-        <!--加载映射文件-->
+        <!--批量加载映射文件
+        <package name="mapper"/>
+        -->
         <mapper resource="mapper/studentMapper.xml"></mapper>
         <mapper resource="mapper/studentCardMapper.xml"></mapper>
         <mapper resource="mapper/studentClassMapper.xml"></mapper>
+        <!--注解形式的加载映射文件方式
+        <mapper class="mapper.StudentMapper"></mapper>
+        -->
     </mappers>
 </configuration>

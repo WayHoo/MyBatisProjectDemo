@@ -51,8 +51,27 @@ public class TestMyBatis {
         sqlSession.close();
     }
 
-    public static void addStudent(Student stu) throws IOException {
-        studentMapper.addStudent(stu);
+    //测试MySQL自增并回写自增字段的值
+    public static void addStudent() throws IOException {
+        Student stu = new Student(0,"Debug",false,23,"研一");
+        System.out.println(stu);
+        studentMapper.addStudent(stu);  //输出的stuNo为0
+        sqlSession.commit();//JDBC模式下必须手动提交事务
+        System.out.println(stu);    //输出的stuNo为14，实现了自增回写
+        sqlSession.close();
+    }
+
+    //SQL多参数（基本类型）
+    public static void addStudentWithMultiParam() throws IOException {
+        studentMapper.addStudentWithMultiParam(null,28,"博士");
+        sqlSession.commit();//JDBC模式下必须手动提交事务
+        sqlSession.close();
+    }
+
+    //SQL多参数（基本类型与对象类型混合）
+    public static void addStudentWithMultiTypeParam() throws IOException {
+        Student stu = new Student(0,"陈铭",true,32,"教授");
+        studentMapper.addStudentWithMultiTypeParam(11,stu);
         sqlSession.commit();//JDBC模式下必须手动提交事务
         sqlSession.close();
     }
@@ -194,6 +213,35 @@ public class TestMyBatis {
         sqlSession.close();
     }
 
+    public static void queryStuByCardIdWithAnnotation() throws IOException {
+        Student stu = studentMapper.queryStuByCardIdWithAnnotation(2);
+        System.out.println(stu);
+        sqlSession.close();
+    }
+
+    public static void querySingleStuOutByHashMap() throws IOException {
+        HashMap<String,Object> map = studentMapper.querySingleStuOutByHashMap(2);
+        System.out.println(map.get("number") + ", " + map.get("name") + ", " + map.get("age"));
+        sqlSession.close();
+    }
+
+    public static void queryAllStuOutByHashMap() throws IOException {
+        HashMap<Integer,Object> map = studentMapper.queryAllStuOutByHashMap();
+        for (Integer stuNo : map.keySet()) {
+            System.out.println(map.get(stuNo));
+        }
+        System.out.println(map.get(1).getClass().toString());//map的value值实际为HashMap对象
+        sqlSession.close();
+    }
+
+    public static void queryStudentByStuNoWithDiscriminator() throws IOException {
+        Student stu1 = studentMapper.queryStudentByStuNoWithDiscriminator(1);
+        Student stu2 = studentMapper.queryStudentByStuNoWithDiscriminator(4);
+        System.out.println(stu1);
+        System.out.println(stu2);
+        sqlSession.close();
+    }
+
     public static void main(String[] args) throws IOException {
         //加载MyBatis配置文件（为了访问数据库）
         reader = Resources.getResourceAsReader("config.xml");
@@ -202,10 +250,9 @@ public class TestMyBatis {
         sqlSession = sqlSessionFactory.openSession();
         studentMapper = sqlSession.getMapper(StudentMapper.class);
 
-        Student stu = new Student(10,"谭芬",false,23,"研一");
 //        updateStudentByStuNo(stu);
 //        queryStudentByStuNoWithConverter(1);
-//        addStudent(stu);
+//        addStudent();
 //        deleteStudentByStuNo(5);
 //        addStudentWithConverter(stu);
 //        queryAllStudentsOrderByColumn();
@@ -220,6 +267,12 @@ public class TestMyBatis {
 //        queryAllStuInClass();
 //        lazyQueryAllStuAndCard();
 //        lazyQueryClassByClassId();
-        test2LevleCache();
+//        test2LevleCache();
+//        queryStuByCardIdWithAnnotation();
+//        addStudentWithMultiParam();
+//        addStudentWithMultiTypeParam();
+//        querySingleStuOutByHashMap();
+//        queryAllStuOutByHashMap();
+        queryStudentByStuNoWithDiscriminator();
     }
 }
